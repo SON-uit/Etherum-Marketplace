@@ -1,28 +1,27 @@
 import { getNativeByChain } from "helpers/networks";
 import { useMoralisDapp } from "providers/MoralisDappProvider/MoralisDappProvider";
 import { useEffect, useMemo, useState } from "react";
-import { useMoralis, useMoralisWeb3Api, useMoralisWeb3ApiCall } from "react-moralis";
+import {
+  useMoralis,
+  useMoralisWeb3Api,
+  useMoralisWeb3ApiCall,
+} from "react-moralis";
 
 export const useNativeBalance = (options) => {
   const { account } = useMoralisWeb3Api();
-  const { Moralis } = useMoralis();
-  const { chainId, walletAddress } = useMoralisDapp();
+  const { chainId } = useMoralisDapp();
+  const { Moralis, isInitialized, isInitializing, isAuthenticated } =
+    useMoralis();
   const [balance, setBalance] = useState({ inWei: 0, formatted: 0 });
 
-  const nativeName = useMemo(() => getNativeByChain(options?.chain || chainId), [options, chainId]);
-
-  const {
-    fetch: getBalance,
-    data,
-    error,
-    isLoading,
-  } = useMoralisWeb3ApiCall(account.getNativeBalance, {
-    chain: chainId,
-    address: walletAddress,
-    ...options,
-  });
-
-  useEffect(() => {
+  const nativeName = useMemo(
+    () => getNativeByChain(options?.chain || chainId),
+    [options, chainId]
+  );
+  const fetchBalance = async () => {
+    const data = await account.getNativeBalance({
+      chain: chainId,
+    });
     if (data?.balance) {
       const balances = {
         inWei: data.balance,
@@ -31,8 +30,13 @@ export const useNativeBalance = (options) => {
       };
       setBalance(balances);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]);
+  };
+  useEffect(() => {
+    console.log("balance run ");
+    if (isInitialized || isAuthenticated) {
+      fetchBalance();
+    }
+  }, [isInitialized, isAuthenticated]);
 
-  return { getBalance, balance, nativeName, error, isLoading };
+  return { balance, nativeName };
 };

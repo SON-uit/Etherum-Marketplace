@@ -63,14 +63,41 @@ function NFTTokenIds({ inputValue, setInputValue }) {
   const [nftToBuy, setNftToBuy] = useState(null);
   const [loading, setLoading] = useState(false);
   const contractProcessor = useWeb3ExecuteFunction();
+
+  // //fecth SCM
+  
+  // const fecthTemp = async () => {
+  //   const fecthFunction ="fetchMarketItems"
+  //    const ops = {
+  //     contractAddress: marketAddress,
+  //     functionName: fecthFunction,
+  //     abi: contractABIJson,
+  //    }
+  //     await contractProcessor.fetch({
+  //     params: ops,
+  //     onSuccess: (data) => {
+  //       console.log("success");
+  //       console.log(data)
+  //     },
+  //     onError: (error) => {
+  //       console.log(error)
+       
+  //     },
+  //   });
+  // }
+  // useEffect(() => {
+  //   console.log("fect")
+  //   fecthTemp()
+  // },[])
   const { chainId, marketAddress, contractABI, walletAddress } =
     useMoralisDapp();
   const nativeName = getNativeByChain(chainId);
   const contractABIJson = JSON.parse(contractABI);
+
+  const { data } = useMoralisQuery("MarketItems")
   const { Moralis } = useMoralis();
-  const queryMarketItems = useMoralisQuery("MarketItems");
   const fetchMarketItems = JSON.parse(
-    JSON.stringify(queryMarketItems.data, [
+    JSON.stringify(data, [
       "objectId",
       "createdAt",
       "price",
@@ -83,12 +110,13 @@ function NFTTokenIds({ inputValue, setInputValue }) {
       "confirmed",
     ])
   );
+ console.log(fetchMarketItems)
   const purchaseItemFunction = "createMarketSale";
-  const NFTCollections = getCollectionsByChain(chainId);
-
+  const NFTCollections = getCollectionsByChain(chainId);  
   async function purchase() {
     setLoading(true);
     const tokenDetails = getMarketItem(nftToBuy);
+    console.log(tokenDetails)
     const itemID = tokenDetails.itemId;
     const tokenPrice = tokenDetails.price;
     const ops = {

@@ -22,7 +22,9 @@ const styles = {
 
 function NFTBalance() {
   const { NFTBalance, fetchSuccess } = useNFTBalance();
+
   const { chainId, marketAddress, contractABI } = useMoralisDapp();
+
   const { Moralis } = useMoralis();
   const [visible, setVisibility] = useState(false);
   const [nftToSend, setNftToSend] = useState(null);
@@ -57,6 +59,7 @@ function NFTBalance() {
         succList();
       },
       onError: (error) => {
+        console.log(error.message);
         setLoading(false);
         failList();
       },
@@ -85,6 +88,7 @@ function NFTBalance() {
         succApprove();
       },
       onError: (error) => {
+        console.log(error)
         setLoading(false);
         failApprove();
       },
